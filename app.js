@@ -1,6 +1,6 @@
 (function() {
     var app = angular.module('music-app', ['ngMaterial', 'ngResource', 'ngRoute']);
-    // directive for stra rating effect
+    // directive for star rating effect
     app.directive('starRating', starRating);
 
     function starRating() {
@@ -108,14 +108,6 @@
             SC.initialize({
                 client_id: '8fc961bc2dcf7c2247ea0357e1420a41'
             });
-            // find all sounds of buskers licensed under 'creative commons share alike'
-            // SC.get('/tracks', {
-            //     q: search_song,
-            //     license: 'cc-by-sa'
-            // }).then(function(tracks) {
-            //     console.log("Tracks are => ", tracks);
-            //     x.searchResult = tracks;
-            // });
         }
 
     }]);
@@ -350,7 +342,7 @@
                     track.showNav = false;
                     track.showClose = true;
 
-                    // console.log(track.searchKeyword);
+                    
                     trackFactory = $resource(url);
                     var entry = trackFactory.get({ title: track.searchKeyword }, function() {
                         console.log(entry);
@@ -516,38 +508,40 @@
             }
         }
 
-    }; //closing controller
-    var currentPlayer;
-    // var streamTrack = function(track){
-    //   console.log("UNDER STREAMING FUNCTION");
-    //   return SC.stream('/tracks/' + track.id).then(function(player){
-    //     window.player = player;
-    //     player.play();
-    //   }).catch(function(){
-    //     console.log(arguments);
-    //   });
-    // };
+    };
+
     function playTrackController($resource, $scope, $mdDialog, musicAppService) {
         val = musicAppService.getTrackProperty();
         var currentPlayer;
+        $scope.showError = false;
+        $scope.showPlay = false;
+        $scope.showPause = true;
+        $scope.showLoader = true;
         console.log("From play option", val.title);
         $scope.trackname = val.title;
         SC.get('/tracks', {
             q: $scope.trackname,
             license: 'cc-by-sa'
         }).then(function(tracks) {
-            console.log("Tracks are => ", tracks);
-            console.log("STREAMING URL is => ", tracks[0].stream_url);
-            $scope.streamTrack(tracks[0]);
+            console.log("Tracks are => " + tracks);
+            if (tracks.length > 0 && typeof tracks != 'undefined') {
+                console.log("STREAMING URL is => ", tracks[0].stream_url);
+                $scope.showLoader = false;
+                console.log("show loader is =>", $scope.showLoader);
+                $scope.streamTrack(tracks[0]);
+            } else {
+                console.log("NOTHING FOUND!!");
+                $scope.showError = true;
+            }
         });
         $scope.cancel = function() {
             $mdDialog.cancel();
-             if (currentPlayer) {
-          currentPlayer.pause();
-        }
+            if (currentPlayer) {
+                currentPlayer.pause();
+            }
         };
         $scope.streamTrack = function(track) {
-            console.log("UNDER STREAMING FUNCTION");
+            
             return SC.stream('/tracks/' + track.id).then(function(player) {
                 currentPlayer = player;
                 player.play();
@@ -556,20 +550,21 @@
                 console.log(arguments);
             });
         };
-        $scope.play = function(){
-                 if (currentPlayer) {
-          currentPlayer.play();
-        }   
+        $scope.play = function() {
+            if (currentPlayer) {
+                currentPlayer.play();
+                $scope.showPlay = false;
+                $scope.showPause = true;
+            }
         }
-        $scope.pause = function(){
-        if (currentPlayer) {
-          currentPlayer.pause();
-        }
-        }
-        // musicAppService.scSearch($scope.trackname);
-        // musicAppService.searchResult;
-        // streamingURL = resultTracks[0].stream_url;
-        // console.log("STREAMING URL IS =>",streamingURL);
+        $scope.pause = function() {
+                if (currentPlayer) {
+                    currentPlayer.pause();
+                    $scope.showPlay = true;
+                    $scope.showPause = false;
+                }
+            }
+
         console.log("Search Results =>", musicAppService.searchResult);
 
     }

@@ -1,11 +1,16 @@
 <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
-    
+        <md-icon  ng-click="cancel()" class="close_button" md-svg-src="img/icons/clear-button.svg"></md-icon>
     <md-card-title-text>
         Track Name: {{trackname}}
     </md-card-title-text>
-    <md-card-actions layout="row" layout-align="end center">
-        <md-button ng-click="play()">Play!</md-button>
-        <md-button ng-click="pause()">Pause</md-button>
-        <md-button ng-click="cancel()">Close</md-button>
+    <!-- <div class= "loader" ng-show="showLoader"><img src="img/pics/loader.gif"></div> -->
+    <span ng-show="showError">Sorry nothing similar found!</span>
+    <md-card-actions layout="row" layout-align="center center">
+        <md-button ng-show = "showPause" ng-click="pause()" class="md-fab md-primary track_control" aria-label="Add track">
+            <md-icon md-svg-src="img/icons/pause.svg">+</md-icon>
+        </md-button>
+        <md-button  ng-show = "showPlay" ng-click="play()" class="md-fab md-primary track_control modal_playbutton" aria-label="Add track">
+            <md-icon md-svg-src="img/icons/play1.svg">+</md-icon>
+        </md-button>
     </md-card-actions>
 </md-card>

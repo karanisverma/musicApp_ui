@@ -54,6 +54,7 @@ md-input-container.md-block {
     background: #efefef;
 }
 
+
 /*input#input_4 {
     width: 78%;
 }*/
@@ -112,12 +113,12 @@ md-card {
 
 
 /*md-tabs{
-	position: relative;
-	top:3em;
-	min-height: 30em;
+    position: relative;
+    top:3em;
+    min-height: 30em;
 }
 md-tabs-wrapper{
-	position: fixed;
+    position: fixed;
     z-index: 9;
     padding: 0 3em;
 
@@ -125,8 +126,8 @@ md-tabs-wrapper{
 
 .popup {
     /*position: fixed;
-	z-index: 4;
-	background:green;*/
+    z-index: 4;
+    background:green;*/
 }
 
 .addTrack {
@@ -203,7 +204,7 @@ nav {
 
 
 /*md-tab-content{
-	min-height: 30em;
+    min-height: 30em;
 }*/
 
 md-dialog {
@@ -269,7 +270,7 @@ md-input-container label:not(.md-no-float):not(._md-container-ignore) {
 
 
 /*md-input-container:not(.md-input-has-value) input:not(:focus), md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-ampm-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-day-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-hour-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-millisecond-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-minute-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-month-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-second-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-text, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-week-field, md-input-container:not(.md-input-has-value) input:not(:focus)::-webkit-datetime-edit-year-field{
-	border-bottom-color: black;
+    border-bottom-color: black;
 }
 */
 
@@ -334,23 +335,51 @@ input#input_3 {
     min-width: 65px;
 }
 
-.genres_list p{
+.genres_list p {
     width: 100%;
     display: initial;
     /*border: 1px solid #bcbcbe;*/
     color: #000000;
     padding: .2em;
     border-radius: 10px;
-    
 }
-.track_genres:after{content: ",";}
-.track_genres:last-child:after{content: ".";}
 
-md-tabs.md-default-theme .md-tab .md-ripple-container, md-tabs .md-tab .md-ripple-container {
+.track_genres:after {
+    content: ",";
+}
+
+.track_genres:last-child:after {
+    content: ".";
+}
+
+md-tabs.md-default-theme .md-tab .md-ripple-container,
+md-tabs .md-tab .md-ripple-container {
     color: rgb(246, 77, 61);
 }
 
-.play_track{
+.play_track {
     margin: 0 auto;
-    top:1em;
+    top: 1em;
+}
+
+.track_control {
+    margin: 0 auto;
+}
+
+.close_button {
+    position: absolute;
+    right: 0;
+    top: 1em;
+    width: 1.2em;
+    margin-right: 1.2em;
+}
+.modal_playbutton{
+    margin: 0px;
+    position: relative;
+    left: -4px;
+}
+
+.loader{
+    width: 5em;
+    margin: 0 auto;
 }
