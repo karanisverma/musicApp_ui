@@ -2,6 +2,7 @@
     var app = angular.module('music-app', ['ngMaterial', 'ngResource', 'ngRoute']);
     // directive for stra rating effect
     app.directive('starRating', starRating);
+
     function starRating() {
         return {
             restrict: 'EA',
@@ -59,6 +60,9 @@
             }
         }
         this.init = function() {
+            SC.initialize({
+                client_id: '8fc961bc2dcf7c2247ea0357e1420a41'
+            });
             var init_url = "http://104.197.128.152:8000/v1/tracks";
             trackResource = $resource(init_url);
             var val = trackResource.get(function() {
@@ -82,7 +86,7 @@
             console.log("Getting Track property", this.trackProperty);
             return this.trackProperty;
         }
-        this.setTrackProperty = function(property, results, index) {
+        this.setTrackProperty = function(property, results = 0, index = 0) {
             console.log("Setting Track property", property);
             this.trackProperty = property;
             this.trackProperty.results = results;
@@ -93,11 +97,25 @@
             console.log("Getting Genre property", this.GenreProperty);
             return this.genreProperty;
         }
-        this.setGenreProperty = function(property,results, index) {
+        this.setGenreProperty = function(property, results, index) {
             console.log("Setting Genre property", property);
             this.genreProperty = property;
             this.genreProperty.results = results;
-            this.genreProperty.index = index;            
+            this.genreProperty.index = index;
+        }
+        this.scSearch = function(search_song) {
+            x = this;
+            SC.initialize({
+                client_id: '8fc961bc2dcf7c2247ea0357e1420a41'
+            });
+            // find all sounds of buskers licensed under 'creative commons share alike'
+            // SC.get('/tracks', {
+            //     q: search_song,
+            //     license: 'cc-by-sa'
+            // }).then(function(tracks) {
+            //     console.log("Tracks are => ", tracks);
+            //     x.searchResult = tracks;
+            // });
         }
 
     }]);
@@ -179,8 +197,8 @@
             };
 
 
-            this.showEditGenreForm = function(genProp,index, ev) {
-                musicAppService.setGenreProperty(genProp,genre.genreList,index);
+            this.showEditGenreForm = function(genProp, index, ev) {
+                musicAppService.setGenreProperty(genProp, genre.genreList, index);
                 console.log("under show  Edit form function");
                 var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && this.customFullscreen;
                 $mdDialog.show({
@@ -230,22 +248,50 @@
                 track.showPrev = musicAppService.buttonStatus(track.prev);
             });
 
+            this.play = function(trackProp, ev) {
+                musicAppService.setTrackProperty(trackProp);
+                console.log("yayayayayayay!!!");
+                var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && this.customFullscreen;
+                $mdDialog.show({
+                    controller: playTrackController,
+                    templateUrl: 'template/playTrack.tmpl.html',
+                    parent: angular.element(document.body),
+                    targetEvent: ev,
+                    clickOutsideToClose: true,
+                    fullscreen: useFullScreen
+                }).then(function(newResults) {
+                    console.log("ook is pressed", newResults);
+                    track.trackList = newResults;
 
-            this.refresh = function(){
+
+                }, function() {
+                    console.log("cancel is pressed");
+
+
+                });
+
+                $scope.$watch(function() {
+                    return $mdMedia('xs') || $mdMedia('sm');
+                }, function(wantsFullScreen) {
+                    this.customFullscreen = (wantsFullScreen === true);
+                });
+            }
+
+            this.refresh = function() {
                 track.showClose = false;
                 track.showNav = true;
-            var init_val = musicAppService.init_val;
-            init_val.$promise.then(function(data) {
-                track.trackList = init_val.results;
-                track.next = init_val.next;
-                track.prev = init_val.previous;
-                track.showNext = musicAppService.buttonStatus(track.next);
-                track.showPrev = musicAppService.buttonStatus(track.prev);
-            });                
+                var init_val = musicAppService.init_val;
+                init_val.$promise.then(function(data) {
+                    track.trackList = init_val.results;
+                    track.next = init_val.next;
+                    track.prev = init_val.previous;
+                    track.showNext = musicAppService.buttonStatus(track.next);
+                    track.showPrev = musicAppService.buttonStatus(track.prev);
+                });
 
             }
             this.showEditTrackForm = function(trackProp, index, ev) {
-                musicAppService.setTrackProperty(trackProp, track.trackList,index);
+                musicAppService.setTrackProperty(trackProp, track.trackList, index);
                 console.log("under show  Edit form function");
                 var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && this.customFullscreen;
                 $mdDialog.show({
@@ -256,14 +302,14 @@
                     clickOutsideToClose: true,
                     fullscreen: useFullScreen
                 }).then(function(newResults) {
-                    console.log("ook is pressed",newResults);
+                    console.log("ook is pressed", newResults);
                     track.trackList = newResults;
 
-                    
+
                 }, function() {
                     console.log("cancel is pressed");
 
- 
+
                 });
 
                 $scope.$watch(function() {
@@ -299,18 +345,18 @@
 
 
             this.search = function() {
-                if(track.searchKeyword){
-                var url = 'http://104.197.128.152:8000/v1/tracks';
-                track.showNav = false;
-                track.showClose = true;
-                
-                // console.log(track.searchKeyword);
-                trackFactory = $resource(url);
-                var entry = trackFactory.get({ title: track.searchKeyword }, function() {
-                    console.log(entry);
-                    track.trackList = entry.results;
-                });
-            }
+                if (track.searchKeyword) {
+                    var url = 'http://104.197.128.152:8000/v1/tracks';
+                    track.showNav = false;
+                    track.showClose = true;
+
+                    // console.log(track.searchKeyword);
+                    trackFactory = $resource(url);
+                    var entry = trackFactory.get({ title: track.searchKeyword }, function() {
+                        console.log(entry);
+                        track.trackList = entry.results;
+                    });
+                }
             }
             this.nextTrack = function() {
                 var url = track.next;
@@ -361,7 +407,7 @@
             $mdDialog.hide(answer);
         };
 
-    }//closing controller
+    } //closing controller
 
     function editGenreController($resource, $scope, $mdDialog, musicAppService) {
         genreVal = musicAppService.getGenreProperty();
@@ -369,17 +415,17 @@
         $scope.name = genreVal.name;
         $scope.id = genreVal.id;
         $scope.update = function() {
-            if($scope.name) {
-            editGenUrl = "http://104.197.128.152:8000/v1/genres/" + $scope.id;
-            resourceGen = $resource(editGenUrl);
-            editGenData = { id: $scope.id, name: $scope.name };
-            console.log("sending data is ", editGenData);
-            resourceGen.save(editGenData, function() {
-                console.log("changes have been made for genre you are awesome");
-                angular.copy(editGenData, genreVal.results[genreVal.index]);
-            });
-            $mdDialog.hide(genreVal.results);
-        }
+            if ($scope.name) {
+                editGenUrl = "http://104.197.128.152:8000/v1/genres/" + $scope.id;
+                resourceGen = $resource(editGenUrl);
+                editGenData = { id: $scope.id, name: $scope.name };
+                console.log("sending data is ", editGenData);
+                resourceGen.save(editGenData, function() {
+                    console.log("changes have been made for genre you are awesome");
+                    angular.copy(editGenData, genreVal.results[genreVal.index]);
+                });
+                $mdDialog.hide(genreVal.results);
+            }
         }
         $scope.hide = function() {
             $mdDialog.hide();
@@ -391,16 +437,16 @@
             console.log("calling cancel function");
             $mdDialog.hide(answer);
         };
-    }//closing controller
+    } //closing controller
 
     function editTrackController($resource, $scope, $mdDialog, musicAppService) {
         val = musicAppService.getTrackProperty();
         $scope.id = val.id;
         $scope.trackname = val.title;
-        $scope.rating = parseInt(val.rating,10);
+        $scope.rating = parseInt(val.rating, 10);
         $scope.initGen = [];
         console.log(">>>>>>>>>> ", val.results);
-                console.log(">>>>>>>>>> ", val.index);
+        console.log(">>>>>>>>>> ", val.index);
 
         $scope.getGenId = function(genres) {
             console.log(genres);
@@ -453,24 +499,62 @@
             }
             console.log($scope.genres);
         }
-        
+
         $scope.saveTrack = function() {
-            console.log("XXXXXXXXX->",val.results);
-            if($scope.trackname){
-            var url = 'http://104.197.128.152:8000/v1/tracks/' + $scope.id;
-            editTraRes = $resource(url);
-            data = { id: $scope.id, title: $scope.trackname, rating: $scope.rating, genres: val.genres }
-            editTrack = JSON.stringify({ id: $scope.id, title: $scope.trackname, rating: $scope.rating, genres: $scope.genres });
-            console.log("Ready Edit data => ", editTrack);
-            editTraRes.save(editTrack, function() {
-                console.log("done like a boss !!");
-                 angular.copy(data, val.results[val.index]);
-            });
-            $mdDialog.hide(val.results);
+            console.log("XXXXXXXXX->", val.results);
+            if ($scope.trackname) {
+                var url = 'http://104.197.128.152:8000/v1/tracks/' + $scope.id;
+                editTraRes = $resource(url);
+                data = { id: $scope.id, title: $scope.trackname, rating: $scope.rating, genres: val.genres }
+                editTrack = JSON.stringify({ id: $scope.id, title: $scope.trackname, rating: $scope.rating, genres: $scope.genres });
+                console.log("Ready Edit data => ", editTrack);
+                editTraRes.save(editTrack, function() {
+                    console.log("done like a boss !!");
+                    angular.copy(data, val.results[val.index]);
+                });
+                $mdDialog.hide(val.results);
+            }
         }
-    }
 
     }; //closing controller
+    var currentPlayer;
+      var streamTrack = function(track){
+        console.log("UNDER STREAMING FUNCTION");
+        return SC.stream('/tracks/' + track.id).then(function(player){
+          // title.innerText = track.title;
+          // info.style.display = 'inline-block';
+          // if (currentPlayer) {
+          //   currentPlayer.pause();
+          // }
+          // currentPlayer = player;
+          window.player = player;
+          player.play();
+        }).catch(function(){
+          console.log(arguments);
+        });
+      };
+    function playTrackController($resource, $scope, $mdDialog, musicAppService) {
+        val = musicAppService.getTrackProperty();
+        console.log("From play option", val.title);
+        $scope.trackname = val.title;
+        SC.get('/tracks', {
+            q: $scope.trackname,
+            license: 'cc-by-sa'
+        }).then(function(tracks) {
+            console.log("Tracks are => ", tracks);
+            console.log("STREAMING URL is => ", tracks[0].stream_url);
+            streamTrack(tracks[0]);
+        });
+        $scope.cancel = function() {
+            $mdDialog.cancel();
+        };
+        musicAppService.scSearch($scope.trackname);
+        musicAppService.searchResult;
+        // streamingURL = resultTracks[0].stream_url;
+        // console.log("STREAMING URL IS =>",streamingURL);
+        console.log("Search Results =>", musicAppService.searchResult);
+
+    }
 
     function newTrackController($resource, $scope, $mdDialog) {
         $scope.genresArray = [];
@@ -515,18 +599,18 @@
         }
 
         $scope.saveTrack = function() {
-            if($scope.trackname){
-            var url = 'http://104.197.128.152:8000/v1/tracks';
-            saveTraRes = $resource(url);
-            newTrack = JSON.stringify({ title: $scope.trackname, rating: $scope.rating, genres: $scope.genresArray });
-            console.log("Ready save data => ", newTrack);
-            saveTraRes.save(newTrack, function() {
-                console.log("done like a boss !!");
-            });
-            $mdDialog.hide();
+            if ($scope.trackname) {
+                var url = 'http://104.197.128.152:8000/v1/tracks';
+                saveTraRes = $resource(url);
+                newTrack = JSON.stringify({ title: $scope.trackname, rating: $scope.rating, genres: $scope.genresArray });
+                console.log("Ready save data => ", newTrack);
+                saveTraRes.save(newTrack, function() {
+                    console.log("done like a boss !!");
+                });
+                $mdDialog.hide();
+            }
         }
-    }
-    }//closing controller
+    } //closing controller
 
 
 
