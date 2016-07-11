@@ -518,23 +518,18 @@
 
     }; //closing controller
     var currentPlayer;
-      var streamTrack = function(track){
-        console.log("UNDER STREAMING FUNCTION");
-        return SC.stream('/tracks/' + track.id).then(function(player){
-          // title.innerText = track.title;
-          // info.style.display = 'inline-block';
-          // if (currentPlayer) {
-          //   currentPlayer.pause();
-          // }
-          // currentPlayer = player;
-          window.player = player;
-          player.play();
-        }).catch(function(){
-          console.log(arguments);
-        });
-      };
+    // var streamTrack = function(track){
+    //   console.log("UNDER STREAMING FUNCTION");
+    //   return SC.stream('/tracks/' + track.id).then(function(player){
+    //     window.player = player;
+    //     player.play();
+    //   }).catch(function(){
+    //     console.log(arguments);
+    //   });
+    // };
     function playTrackController($resource, $scope, $mdDialog, musicAppService) {
         val = musicAppService.getTrackProperty();
+        var currentPlayer;
         console.log("From play option", val.title);
         $scope.trackname = val.title;
         SC.get('/tracks', {
@@ -543,13 +538,36 @@
         }).then(function(tracks) {
             console.log("Tracks are => ", tracks);
             console.log("STREAMING URL is => ", tracks[0].stream_url);
-            streamTrack(tracks[0]);
+            $scope.streamTrack(tracks[0]);
         });
         $scope.cancel = function() {
             $mdDialog.cancel();
+             if (currentPlayer) {
+          currentPlayer.pause();
+        }
         };
-        musicAppService.scSearch($scope.trackname);
-        musicAppService.searchResult;
+        $scope.streamTrack = function(track) {
+            console.log("UNDER STREAMING FUNCTION");
+            return SC.stream('/tracks/' + track.id).then(function(player) {
+                currentPlayer = player;
+                player.play();
+
+            }).catch(function() {
+                console.log(arguments);
+            });
+        };
+        $scope.play = function(){
+                 if (currentPlayer) {
+          currentPlayer.play();
+        }   
+        }
+        $scope.pause = function(){
+        if (currentPlayer) {
+          currentPlayer.pause();
+        }
+        }
+        // musicAppService.scSearch($scope.trackname);
+        // musicAppService.searchResult;
         // streamingURL = resultTracks[0].stream_url;
         // console.log("STREAMING URL IS =>",streamingURL);
         console.log("Search Results =>", musicAppService.searchResult);
